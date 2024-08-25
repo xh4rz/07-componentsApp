@@ -3,6 +3,7 @@ import { globalStyles } from '../../../config/theme/theme';
 import { CustomView } from '../../components/ui/CustomView';
 import { Title } from '../../components/ui/Title';
 import { Button } from '../../components/ui/Button';
+import { showPrompt } from '../../../config/adapters/prompt.adapter';
 
 export const AlertScreen = () => {
 	const createTwoButtonAlert = () =>
@@ -39,15 +40,20 @@ export const AlertScreen = () => {
 			}
 		);
 
-	const showPrompt = () => {
-		Alert.prompt(
-			'Corrreo electronico',
-			'Enim commodo ut amet esse aliqua',
-			(valor: string) => console.log({ valor }),
-			'secure-text',
-			'Soy el valor por defecto',
-			'number-pad'
-		);
+	const onShowPrompt = () => {
+		showPrompt({
+			title: 'Lorem Ipsum',
+			subTitle: 'Nostrud qui duis officia dolor enim.',
+			buttons: [
+				{
+					text: 'OK',
+					onPress: () => {
+						console.log('ok');
+					}
+				}
+			],
+			placeHolder: 'Placeholder'
+		});
 	};
 
 	return (
@@ -62,7 +68,7 @@ export const AlertScreen = () => {
 
 			<View style={{ height: 10 }} />
 
-			<Button text="Prompt" onPress={showPrompt} />
+			<Button text="Prompt" onPress={onShowPrompt} />
 		</CustomView>
 	);
 };
