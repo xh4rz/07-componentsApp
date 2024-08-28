@@ -1,12 +1,17 @@
 import {
 	Image,
 	ImageSourcePropType,
+	NativeScrollEvent,
+	NativeSyntheticEvent,
 	Text,
 	useWindowDimensions,
 	View
 } from 'react-native';
 import { colors, globalStyles } from '../../../config/theme/theme';
 import { FlatList } from 'react-native-gesture-handler';
+import { Button } from '../../components/ui/Button';
+import { useRef, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
 
 interface Slide {
 	title: string;
@@ -33,16 +38,52 @@ const items: Slide[] = [
 ];
 
 export const SlidesScreen = () => {
+	const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+
+	const flatListRef = useRef<FlatList>(null);
+
+	const navigate = useNavigation();
+
+	const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+		const { contentOffset, layoutMeasurement } = event.nativeEvent;
+
+		const currentIndex = Math.floor(contentOffset.x / layoutMeasurement.width);
+
+		setCurrentSlideIndex(currentIndex > 0 ? currentIndex : 0);
+	};
+
+	const scrollToSlide = (index: number) => {
+		if (!flatListRef.current) return;
+
+		flatListRef.current.scrollToIndex({ index: index, animated: true });
+	};
+
 	return (
 		<View style={{ flex: 1, backgroundColor: colors.background }}>
 			<FlatList
+				ref={flatListRef}
 				data={items}
 				keyExtractor={item => item.title}
 				renderItem={({ item }) => <SlideItem item={item} />}
 				horizontal
 				pagingEnabled
-				scrollEnabled={false}
+				// scrollEnabled={false}
+				onScroll={onScroll}
 			/>
+
+			{currentSlideIndex === items.length - 1 ? (
+				<Button
+					text="Finalizar"
+					styles={{ position: 'absolute', bottom: 60, right: 30, width: 100 }}
+					onPress={() => navigate.goBack()}
+				/>
+			) : (
+				<Button
+					text="Siguiente"
+					styles={{ position: 'absolute', bottom: 60, right: 30, width: 100 }}
+					onPress={() => scrollToSlide(currentSlideIndex + 1)}
+				/>
+			)}
 		</View>
 	);
 };
